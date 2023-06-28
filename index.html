@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>랜덤으로 띄우기</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div id="app">
+        <div class="intro" v-if="Search === false">
+            <h1>클릭해보세요!</h1>
+        </div>
+        <div class="info" v-else-if="Search === true">
+            <img :src="Picture" :class="Gender" :alt="`${FirstName} ${LastName}`" />
+            <h1>
+                {{ FirstName }} {{ LastName }}
+            </h1>
+            <h3>
+                {{ Email }}
+            </h3>
+        </div>
+        
+        <button :class="Gender" @click="getUser">
+            클릭
+        </button>
+        
+        <div class="loading" v-if="isLoading === true">
+            <p>로딩중입니다.</p>
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    Search: false,
+                    FirstName: "",
+                    LastName: "",
+                    Email: "",
+                    Picture: "",
+                    Gender: "",
+                    isLoading: false,
+                }
+            },
+
+            methods: {
+                async getUser() {
+                    this.isLoading = true;
+                    await axios.get('https://randomuser.me/api').then( (result) => {
+                        let results = result.data.results;
+                        this.Search = true;
+                        this.Gender = results[0].gender;
+                        this.FirstName = results[0].name.first;
+                        this.LastName = results[0].name.last;
+                        this.Email = results[0].email;
+                        this.Picture = results[0].picture.large;
+                    })
+                    .catch( (err) => {
+                        console.log(err);
+                    })
+                    .finally( () => {
+                        this.isLoading = false;
+                    });
+                }
+            }
+        });
+
+        app.mount("#app");
+    </script>
+</body>
+</html>
